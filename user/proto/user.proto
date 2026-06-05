@@ -1,0 +1,52 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+option go_package = "proto/message";
+package user.protobuf;
+
+// 用户信息
+message UserInfo {
+  uint32                    user_id    = 1;
+  string                    nick_name  = 2;
+  string                    password   = 3;
+  string                    mobile     = 4;
+  string                    email      = 5;
+  string                    birthday   = 6;
+  uint32                    gender     = 7;
+  uint32                    role       = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+  google.protobuf.Timestamp deleted_at = 11;
+}
+
+message UserLogin {
+  string mobile   = 1;
+  string password = 2;
+}
+
+message UserSearch {
+  uint32 user_id = 1;
+  string mobile  = 2;
+}
+
+message UserListReq {
+  uint32 page_no   = 1;
+  uint32 page_size = 2;
+}
+
+message UserList {
+  int64             total = 1;
+  repeated UserInfo data  = 2;
+}
+
+service UserService {
+    // 创建用户
+  rpc CreateUser(UserInfo) returns (UserInfo);
+    // 用户登录
+  rpc Login(UserLogin) returns (UserInfo);
+    // 查询单个用户
+  rpc GetUser(UserSearch) returns (UserInfo);
+    // 查询用户列表
+  rpc GetUserList(UserListReq) returns (UserList);
+    // 编辑用户信息
+  rpc UpdateUser(UserInfo) returns (UserInfo);
+}
