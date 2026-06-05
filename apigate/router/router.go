@@ -14,7 +14,7 @@ func Init() *gin.Engine {
 	// 用户路由组
 	userGroup := api.Group("/users")
 	{
-		userGroup.GET("/", handler.GetUserList)
+		userGroup.POST("/", handler.CreateUser)
 	}
 
 	return r
