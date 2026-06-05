@@ -7,9 +7,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"user-service/proto/message"
 	"user-service/server"
 	"user-service/svc"
+
+	"proto/pb"
 
 	"google.golang.org/grpc"
 )
@@ -28,7 +29,7 @@ func main() {
 	server := server.NewUserServiceServer(c)
 	grpcSrv := grpc.NewServer()
 	// 注册 grpc 服务
-	message.RegisterUserServiceServer(grpcSrv, server)
+	pb.RegisterUserServiceServer(grpcSrv, server)
 
 	addr := fmt.Sprintf("%s:%d", ip, port)
 	listener, err := net.Listen("tcp", addr)

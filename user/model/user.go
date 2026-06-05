@@ -2,8 +2,8 @@ package model
 
 import (
 	"errors"
+	"proto/pb"
 	"time"
-	"user-service/proto/message"
 
 	"gorm.io/gorm"
 )
@@ -61,7 +61,7 @@ func (row *User) GetUser(db *gorm.DB) (*User, error) {
 	return &user, nil
 }
 
-func (row *User) GetUserList(req *message.UserListReq, db *gorm.DB) ([]*User, int64, error) {
+func (row *User) GetUserList(req *pb.UserListReq, db *gorm.DB) ([]*User, int64, error) {
 	if db == nil {
 		return nil, 0, errors.New("empty connection")
 	}
@@ -106,12 +106,12 @@ func (row *User) UpdateUser(updateMap map[string]any, db *gorm.DB) error {
 	return nil
 }
 
-func (row *User) ToProto() *message.UserInfo {
+func (row *User) ToProto() *pb.UserInfo {
 	if row == nil {
 		return nil
 	}
 
-	return &message.UserInfo{
+	return &pb.UserInfo{
 		UserId:   row.UserID,
 		NickName: row.NickName,
 		Mobile:   row.Mobile,

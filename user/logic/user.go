@@ -3,10 +3,10 @@ package logic
 import (
 	"context"
 	"errors"
+	"proto/pb"
 	"time"
 	"user-service/common/util"
 	"user-service/model"
-	"user-service/proto/message"
 	"user-service/svc"
 )
 
@@ -22,7 +22,7 @@ func NewUserService(ctx context.Context, svcCtx *svc.ServiceContext) *UserServic
 	}
 }
 
-func (l *UserService) CreateUserLogic(req *message.UserInfo) (*message.UserInfo, error) {
+func (l *UserService) CreateUserLogic(req *pb.UserInfo) (*pb.UserInfo, error) {
 	if req.NickName == "" {
 		return nil, errors.New("请输入用户名")
 	}
@@ -71,7 +71,7 @@ func (l *UserService) CreateUserLogic(req *message.UserInfo) (*message.UserInfo,
 	return admin.ToProto(), nil
 }
 
-func (l *UserService) Login(req *message.UserLogin) (*message.UserInfo, error) {
+func (l *UserService) Login(req *pb.UserLogin) (*pb.UserInfo, error) {
 	row := &model.User{
 		Mobile: req.Mobile,
 	}
@@ -89,7 +89,7 @@ func (l *UserService) Login(req *message.UserLogin) (*message.UserInfo, error) {
 	return user.ToProto(), nil
 }
 
-func (l *UserService) GetUser(req *message.UserSearch) (*message.UserInfo, error) {
+func (l *UserService) GetUser(req *pb.UserSearch) (*pb.UserInfo, error) {
 
 	row := &model.User{
 		UserID: req.UserId,
@@ -103,8 +103,8 @@ func (l *UserService) GetUser(req *message.UserSearch) (*message.UserInfo, error
 	return user.ToProto(), nil
 }
 
-func (l *UserService) GetUserList(req *message.UserListReq) (*message.UserList, error) {
-	out := &message.UserList{}
+func (l *UserService) GetUserList(req *pb.UserListReq) (*pb.UserList, error) {
+	out := &pb.UserList{}
 
 	row := &model.User{}
 	users, total, err := row.GetUserList(req, l.svcCtx.DbConn)
@@ -112,7 +112,7 @@ func (l *UserService) GetUserList(req *message.UserListReq) (*message.UserList, 
 		return nil, err
 	}
 
-	var data []*message.UserInfo
+	var data []*pb.UserInfo
 	for _, user := range users {
 		data = append(data, user.ToProto())
 	}
@@ -121,7 +121,7 @@ func (l *UserService) GetUserList(req *message.UserListReq) (*message.UserList, 
 	return out, nil
 }
 
-func (l *UserService) UpdateUser(req *message.UserInfo) (*message.UserInfo, error) {
+func (l *UserService) UpdateUser(req *pb.UserInfo) (*pb.UserInfo, error) {
 	// 查询用户
 	row := &model.User{
 		UserID: req.UserId,

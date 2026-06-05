@@ -2,25 +2,25 @@ package server
 
 import (
 	"context"
+	"proto/pb"
 	"testing"
-	"user-service/proto/message"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func Init() message.UserServiceClient {
+func Init() pb.UserServiceClient {
 	conn, err := grpc.NewClient("127.0.0.1:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
-	client := message.NewUserServiceClient(conn)
+	client := pb.NewUserServiceClient(conn)
 	return client
 }
 
 func TestCreatUser(t *testing.T) {
 	cl := Init()
-	user := &message.UserInfo{
+	user := &pb.UserInfo{
 		NickName: "李四",
 		Password: "admin",
 		Mobile:   "12345678911",
@@ -38,7 +38,7 @@ func TestCreatUser(t *testing.T) {
 }
 
 func TestLogin(t *testing.T) {
-	req := &message.UserLogin{
+	req := &pb.UserLogin{
 		Mobile:   "12345678911",
 		Password: "admin",
 	}
@@ -52,7 +52,7 @@ func TestLogin(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	req := &message.UserSearch{
+	req := &pb.UserSearch{
 		UserId: 9,
 	}
 	cl := Init()
@@ -65,7 +65,7 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestGetUserList(t *testing.T) {
-	req := &message.UserListReq{}
+	req := &pb.UserListReq{}
 	cl := Init()
 	resp, err := cl.GetUserList(context.Background(), req)
 	if err != nil {
@@ -76,7 +76,7 @@ func TestGetUserList(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	req := &message.UserInfo{
+	req := &pb.UserInfo{
 		UserId:   1,
 		NickName: "我是管理员",
 		Mobile:   "11111111111",

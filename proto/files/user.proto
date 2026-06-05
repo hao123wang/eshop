@@ -1,6 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/timestamp.proto";
-option go_package = "proto/message";
+option go_package = "pb/";
 package user.protobuf;
 
 // 用户信息
