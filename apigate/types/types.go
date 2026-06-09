@@ -2,6 +2,7 @@
 package types
 
 type UserInfo struct {
+	UserID   uint32 `json:"user_id"`
 	NickName string `json:"nick_name"`
 	Password string `json:"password"`
 	Mobile   string `josn:"mobile"`
@@ -9,10 +10,4 @@ type UserInfo struct {
 	Birthday string `json:"birthday"`
 	Gender   uint8  `json:"gender"`
 	Role     uint8  `json:"role"`
-}
-
-type UserInfoResp struct {
-	Code int32  `json:"code"`
-	Msg  string `json:"msg"`
-	Data any    `json:"data"`
 }

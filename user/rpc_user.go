@@ -6,11 +6,10 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"proto/pb"
 	"syscall"
 	"user-service/server"
 	"user-service/svc"
-
-	"proto/pb"
 
 	"google.golang.org/grpc"
 )
@@ -21,7 +20,7 @@ func main() {
 	var port int
 
 	flag.StringVar(&ip, "ip", "127.0.0.1", "server ip")
-	flag.IntVar(&port, "port", 8080, "server port")
+	flag.IntVar(&port, "port", 8081, "server port")
 	flag.Parse()
 
 	// 声明依赖
@@ -50,4 +49,5 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	fmt.Println("程序优雅退出")
+
 }

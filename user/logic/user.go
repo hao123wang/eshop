@@ -2,12 +2,14 @@ package logic
 
 import (
 	"context"
-	"errors"
 	"proto/pb"
 	"time"
 	"user-service/common/util"
 	"user-service/model"
 	"user-service/svc"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UserService struct {
@@ -24,10 +26,10 @@ func NewUserService(ctx context.Context, svcCtx *svc.ServiceContext) *UserServic
 
 func (l *UserService) CreateUserLogic(req *pb.UserInfo) (*pb.UserInfo, error) {
 	if req.NickName == "" {
-		return nil, errors.New("请输入用户名")
+		return nil, status.Error(codes.InvalidArgument, "请输入用户名")
 	}
 	if req.Mobile == "" {
-		return nil, errors.New("请输入手机号")
+		return nil, status.Error(codes.InvalidArgument, "请输入手机号")
 	}
 
 	// 手机号唯一校验
@@ -39,19 +41,19 @@ func (l *UserService) CreateUserLogic(req *pb.UserInfo) (*pb.UserInfo, error) {
 		return nil, err
 	}
 	if user != nil {
-		return nil, errors.New("手机号已被注册")
+		return nil, status.Error(codes.InvalidArgument, "手机号已被注册")
 	}
 
 	// 密码加密
 	hashPwd, err := util.Encryption(req.Password)
 	if err != nil {
-		return nil, errors.New("服务器故障")
+		return nil, status.Error(codes.Internal, "服务器内部错误")
 	}
 
 	// 出生日期
 	birthday, err := time.Parse("2006-01-02", req.Birthday)
 	if err != nil {
-		return nil, errors.New("出生日期格式不对，正确格式为：2006-01-02")
+		return nil, status.Error(codes.InvalidArgument, "出生日期格式错误，正确格式为：yyyy-MM-dd")
 	}
 	// 创建用户
 	admin := &model.User{
@@ -65,7 +67,7 @@ func (l *UserService) CreateUserLogic(req *pb.UserInfo) (*pb.UserInfo, error) {
 	}
 
 	if err := admin.CreateUser(l.svcCtx.DbConn); err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, "用户创建失败")
 	}
 
 	return admin.ToProto(), nil
@@ -77,14 +79,14 @@ func (l *UserService) Login(req *pb.UserLogin) (*pb.UserInfo, error) {
 	}
 	user, err := row.GetUser(l.svcCtx.DbConn)
 	if err != nil {
-		return nil, errors.New("internal server error")
+		return nil, status.Error(codes.Internal, "服务器内部错误")
 	}
 	if user == nil {
-		return nil, errors.New("用户未注册")
+		return nil, status.Error(codes.InvalidArgument, "用户名或密码错误")
 	}
 
 	if !util.IsCorrectPwd(user.Password, req.Password) {
-		return nil, errors.New("用户名或密码错误")
+		return nil, status.Error(codes.InvalidArgument, "用户名或密码错误")
 	}
 	return user.ToProto(), nil
 }
@@ -98,7 +100,7 @@ func (l *UserService) GetUser(req *pb.UserSearch) (*pb.UserInfo, error) {
 
 	user, err := row.GetUser(l.svcCtx.DbConn)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, "服务器内部错误")
 	}
 	return user.ToProto(), nil
 }
@@ -109,7 +111,7 @@ func (l *UserService) GetUserList(req *pb.UserListReq) (*pb.UserList, error) {
 	row := &model.User{}
 	users, total, err := row.GetUserList(req, l.svcCtx.DbConn)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, "服务器内部错误")
 	}
 
 	var data []*pb.UserInfo
@@ -128,7 +130,7 @@ func (l *UserService) UpdateUser(req *pb.UserInfo) (*pb.UserInfo, error) {
 	}
 	user, err := row.GetUser(l.svcCtx.DbConn)
 	if err != nil {
-		return nil, errors.New("internal server err")
+		return nil, status.Error(codes.Internal, "服务器内部错误")
 	}
 	if user == nil {
 		return nil, nil
@@ -137,7 +139,7 @@ func (l *UserService) UpdateUser(req *pb.UserInfo) (*pb.UserInfo, error) {
 	// 出生日期
 	birthday, err := time.Parse("2006-01-02", req.Birthday)
 	if err != nil {
-		return nil, errors.New("出生日期格式不对，正确格式为：2006-01-02")
+		return nil, status.Error(codes.InvalidArgument, "出生日期格式不对，正确格式为：2006-01-02")
 	}
 
 	updateMap := make(map[string]any)
@@ -146,12 +148,12 @@ func (l *UserService) UpdateUser(req *pb.UserInfo) (*pb.UserInfo, error) {
 	updateMap["gender"] = req.Gender
 
 	if err := row.UpdateUser(updateMap, l.svcCtx.DbConn); err != nil {
-		return nil, errors.New("internal server err")
+		return nil, status.Error(codes.InvalidArgument, "internal server err")
 	}
 
 	user, err = row.GetUser(l.svcCtx.DbConn)
 	if err != nil {
-		return nil, errors.New("internal server err")
+		return nil, status.Error(codes.Internal, "internal server err")
 	}
 	return user.ToProto(), nil
 }

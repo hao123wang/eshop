@@ -15,7 +15,7 @@ type ServiceContext struct {
 func NewServiceContext() *ServiceContext {
 	svc := &ServiceContext{}
 
-	conn, err := grpc.NewClient("127.0.0.1:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("127.0.0.1:8081", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		zap.L().Error("create new grpc client err: %v", zap.Error(err))
 		return nil
