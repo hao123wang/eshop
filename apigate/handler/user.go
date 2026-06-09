@@ -51,3 +51,25 @@ func CreateUser(svcCtx *svc.ServiceContext) gin.HandlerFunc {
 		RespOK(c, resp)
 	}
 }
+
+// Login 用户登录
+func Login(svcCtx *svc.ServiceContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 获取请求参数
+		var req types.LoginReq
+		if err := c.ShouldBindJSON(&req); err != nil {
+			zap.L().Error("c.ShouldBindJSON err: %v", zap.Error(err))
+			RespErr(c, http.StatusBadRequest, "客户端请求错误", err)
+			return
+		}
+		// 创建logic实例
+		l := logic.NewUserSrvLogic(c.Request.Context(), svcCtx)
+		resp, err := l.Login(req)
+		if err != nil {
+			zap.L().Error("l.Login err: %v", zap.Error(err))
+			RespErr(c, http.StatusInternalServerError, "服务器内部错误", err)
+			return
+		}
+		RespOK(c, resp)
+	}
+}

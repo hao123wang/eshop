@@ -11,3 +11,8 @@ type UserInfo struct {
 	Gender   uint8  `json:"gender"`
 	Role     uint8  `json:"role"`
 }
+
+type LoginReq struct {
+	Mobile  string `json:"mobile"`
+	Pasword string `json:"password"`
+}

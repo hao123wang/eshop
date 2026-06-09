@@ -49,3 +49,30 @@ func (l *UserSrvLogic) CreateUser(req types.UserInfo) (*types.UserInfo, error) {
 	}
 	return httpResp, nil
 }
+
+// Login 用户登录逻辑
+func (l *UserSrvLogic) Login(req types.LoginReq) (*types.UserInfo, error) {
+	// types -> pb
+	pbReq := &pb.UserLogin{
+		Mobile:   req.Mobile,
+		Password: req.Pasword,
+	}
+
+	// 调用rpc
+	pbResp, err := l.svcCtx.UserSrv.Login(l.ctx, pbReq)
+	if err != nil {
+		return nil, err
+	}
+
+	// pb -> types
+	httpResp := &types.UserInfo{
+		UserID:   pbResp.UserId,
+		NickName: pbResp.NickName,
+		Mobile:   pbResp.Mobile,
+		Email:    pbResp.Email,
+		Birthday: pbResp.Birthday,
+		Gender:   uint8(pbResp.Gender),
+		Role:     uint8(pbResp.Role),
+	}
+	return httpResp, nil
+}

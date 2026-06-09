@@ -12,6 +12,9 @@ func Init(svcCtx *svc.ServiceContext) *gin.Engine {
 
 	api := r.Group("/v1")
 
+	// 用户登录
+	api.POST("/login", handler.Login(svcCtx))
+
 	// 用户路由组
 	userGroup := api.Group("/users")
 	{

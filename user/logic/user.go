@@ -82,11 +82,12 @@ func (l *UserService) Login(req *pb.UserLogin) (*pb.UserInfo, error) {
 		return nil, status.Error(codes.Internal, "服务器内部错误")
 	}
 	if user == nil {
-		return nil, status.Error(codes.InvalidArgument, "用户名或密码错误")
+		return nil, status.Error(codes.InvalidArgument, "账号或密码错误")
 	}
 
+	
 	if !util.IsCorrectPwd(user.Password, req.Password) {
-		return nil, status.Error(codes.InvalidArgument, "用户名或密码错误")
+		return nil, status.Error(codes.InvalidArgument, "账号或密码错误")
 	}
 	return user.ToProto(), nil
 }
