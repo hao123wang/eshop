@@ -22,13 +22,6 @@ func RespErr(c *gin.Context, code int, msg string, err error) {
 	})
 }
 
-func RespOK(c *gin.Context, data any) {
-	c.JSON(http.StatusOK, gin.H{
-		"msg":  "success",
-		"data": data,
-	})
-}
-
 func CreateUser(svcCtx *svc.ServiceContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 接收请求参数
@@ -48,7 +41,7 @@ func CreateUser(svcCtx *svc.ServiceContext) gin.HandlerFunc {
 			RespErr(c, http.StatusInternalServerError, "服务器内部错误", err)
 			return
 		}
-		RespOK(c, resp)
+		c.JSON(http.StatusOK, resp)
 	}
 }
 
@@ -70,6 +63,25 @@ func Login(svcCtx *svc.ServiceContext) gin.HandlerFunc {
 			RespErr(c, http.StatusInternalServerError, "服务器内部错误", err)
 			return
 		}
-		RespOK(c, resp)
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// GetUserByID 根据id获取用户信息
+func GetUserByID(svcCtx *svc.ServiceContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 接收请求参数
+		var req types.GetUserByID
+		if err := c.ShouldBindJSON(&req); err != nil {
+			RespErr(c, http.StatusBadRequest, "客户端请求错误", err)
+			return
+		}
+		// 调用logic层
+		l := logic.NewUserSrvLogic(c.Request.Context(), svcCtx)
+		resp, err := l.GetUserByID(req)
+		if err != nil {
+			RespErr(c, http.StatusInternalServerError, "服务器内部错误", err)
+		}
+		c.JSON(http.StatusOK, resp)
 	}
 }

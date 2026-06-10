@@ -12,7 +12,17 @@ type UserInfo struct {
 	Role     uint8  `json:"role"`
 }
 
+type Resp struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Data any    `json:"data"`
+}
+
 type LoginReq struct {
 	Mobile  string `json:"mobile"`
 	Pasword string `json:"password"`
+}
+
+type GetUserByID struct {
+	UserID uint32 `json:"user_id"`
 }
