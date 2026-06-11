@@ -22,7 +22,7 @@ func NewRedisStore(keyPrefix string, rdb *redis.Client) *RedisStore {
 var _ base64Captcha.Store = (*RedisStore)(nil)
 
 func (s *RedisStore) Set(id string, value string) error {
-	key := s.KeyPrefix + "id"
+	key := s.KeyPrefix + id
 	return s.RDB.Set(key, value, 5*time.Minute).Err()
 }
 
