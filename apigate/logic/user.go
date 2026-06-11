@@ -3,6 +3,7 @@ package logic
 import (
 	"apigate/svc"
 	"apigate/types"
+	"apigate/utils/captcha"
 	"apigate/utils/jwt"
 	"context"
 	"fmt"
@@ -19,6 +20,58 @@ func NewUserSrvLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserSrvLo
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
+}
+
+func (l *UserSrvLogic) Captcha() (*types.Resp, error) {
+	// 生成验证码并返回
+	captchaMana := captcha.NewCaptchaMana(l.svcCtx.Redis)
+	id, img, err := captchaMana.Generate()
+	if err != nil {
+		return nil, fmt.Errorf("验证码生成失败: %v", err)
+	}
+
+	data := types.CaptchaResp{
+		CaptchaID:  id,
+		CaptchaImg: img,
+	}
+	return &types.Resp{
+		Code: 200,
+		Msg:  "success",
+		Data: data,
+	}, nil
+}
+
+// Register 普通用户自主注册
+
+// Login 用户登录逻辑
+func (l *UserSrvLogic) Login(req types.LoginReq) (*types.Resp, error) {
+	// types -> pb
+	pbReq := &pb.UserLogin{
+		Mobile:   req.Mobile,
+		Password: req.Pasword,
+	}
+
+	// 调用rpc
+	pbResp, err := l.svcCtx.UserSrv.Login(l.ctx, pbReq)
+	if err != nil {
+		return nil, err
+	}
+
+	// 登录成功后，生成jwt响应给客户端
+	tokenString, err := jwt.GenToken(pbResp.UserId, pbResp.NickName)
+	if err != nil {
+		return nil, fmt.Errorf("生成token失败: %v", err)
+	}
+	// pb -> types
+
+	resp := &types.Resp{
+		Code: 200,
+		Msg:  "登录成功",
+		Data: map[string]any{
+			"token": tokenString,
+		},
+	}
+	return resp, nil
 }
 
 func (l *UserSrvLogic) CreateUser(req types.UserInfo) (*types.Resp, error) {
@@ -53,37 +106,6 @@ func (l *UserSrvLogic) CreateUser(req types.UserInfo) (*types.Resp, error) {
 		Code: 200,
 		Msg:  "success",
 		Data: data,
-	}
-	return resp, nil
-}
-
-// Login 用户登录逻辑
-func (l *UserSrvLogic) Login(req types.LoginReq) (*types.Resp, error) {
-	// types -> pb
-	pbReq := &pb.UserLogin{
-		Mobile:   req.Mobile,
-		Password: req.Pasword,
-	}
-
-	// 调用rpc
-	pbResp, err := l.svcCtx.UserSrv.Login(l.ctx, pbReq)
-	if err != nil {
-		return nil, err
-	}
-
-	// 登录成功后，生成jwt响应给客户端
-	tokenString, err := jwt.GenToken(pbResp.UserId, pbResp.NickName)
-	if err != nil {
-		return nil, fmt.Errorf("生成token失败: %v", err)
-	}
-	// pb -> types
-
-	resp := &types.Resp{
-		Code: 200,
-		Msg:  "登录成功",
-		Data: map[string]any{
-			"token": tokenString,
-		},
 	}
 	return resp, nil
 }

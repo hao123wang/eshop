@@ -18,6 +18,11 @@ type Resp struct {
 	Data any    `json:"data"`
 }
 
+type CaptchaResp struct {
+	CaptchaID  string `json:"captcha_id"`
+	CaptchaImg string `json:"captcha_img"`
+}
+
 type LoginReq struct {
 	Mobile  string `json:"mobile"`
 	Pasword string `json:"password"`
